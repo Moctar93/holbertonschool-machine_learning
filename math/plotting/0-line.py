@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""
+This module contains a script to plot y = x^3 as a solid red line
+for x values ranging from 0 to 10 using matplotlib.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 
