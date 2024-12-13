@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env python3
 """²
 line graph
 showing the exponential decay of C-14
