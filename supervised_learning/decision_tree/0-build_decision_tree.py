@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
-
+"""
+Decision Tree
+"""
 import numpy as np
 
 
 class Node:
-    def __init__(self, feature=None, threshold=None, left_child=None,
-                 right_child=None, is_root=False, depth=0):
+    """
+    Represents a node in the decision tree.
+    """
+
+    def __init__(
+        self, feature=None, threshold=None, left_child=None,
+        right_child=None, is_root=False, depth=0
+    ):
         self.feature = feature
         self.threshold = threshold
         self.left_child = left_child
@@ -17,18 +25,24 @@ class Node:
 
     def max_depth_below(self):
         """
-        Retourne la profondeur maximale des sous-arbres en dessous de ce nœud.
+        Computes the maximum depth of the subtree rooted at this node
         """
-        if self.is_leaf:
-            return self.depth
-        left_depth = self.left_child.max_depth_below() if self.left_child
-    else 0
-    right_depth = self.right_child.max_depth_below() if self.right_child
-    else 0
-    return max(left_depth, right_depth)
+
+        max_depth = self.depth
+        if self.left_child is not None:
+            max_depth = max(max_depth, self.left_child.max_depth_below())
+
+        if self.right_child is not None:
+            max_depth = max(max_depth, self.right_child.max_depth_below())
+
+        return max_depth
 
 
 class Leaf(Node):
+    """
+    Represents a leaf in the decision tree.
+    """
+
     def __init__(self, value, depth=None):
         super().__init__()
         self.value = value
@@ -37,14 +51,20 @@ class Leaf(Node):
 
     def max_depth_below(self):
         """
-        Retourne la profondeur de cette feuille.
+        Returns the depth of the leaf since it has no children.
         """
         return self.depth
 
 
-class Decision_Tree:
-    def __init__(self, max_depth=10, min_pop=1, seed=0,
-                 split_criterion="random", root=None):
+class Decision_Tree():
+    """
+    Represents the full decision tree model.
+    """
+
+    def __init__(
+        self, max_depth=10, min_pop=1, seed=0,
+        split_criterion="random", root=None
+    ):
         self.rng = np.random.default_rng(seed)
         if root:
             self.root = root
@@ -59,6 +79,6 @@ class Decision_Tree:
 
     def depth(self):
         """
-        Retourne la profondeur maximale de l'arbre de décision.
+         Returns the maximum depth of the entire tree.
         """
         return self.root.max_depth_below()
