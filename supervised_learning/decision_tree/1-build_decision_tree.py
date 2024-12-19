@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Node:
     def __init__(self, feature, threshold, left_child, right_child, depth, is_root=False):
         self.feature = feature
