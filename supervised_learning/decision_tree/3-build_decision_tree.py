@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 class Node:
-    def __init__(self, feature=None, threshold=None, left_child=None, right_child=None, is_root=False, depth=0):
+    def __init__(self, feature=None, threshold=None, left_child=None,
+                 right_child=None, is_root=False, depth=0):
         self.feature = feature
         self.threshold = threshold
         self.left_child = left_child
@@ -41,4 +42,3 @@ class Decision_Tree:
     def get_leaves(self):
         """Returns the list of all leaves of the decision tree."""
         return self.root.get_leaves_below()
-
