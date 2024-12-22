@@ -109,7 +109,7 @@ class Leaf:
 
     def __repr__(self):
         """
-        Fournit une représentation textuelle d'une feuille pour un affichage clair.
+        Fournit une représentation textuelle d'une feuille
 
         Exemple :
         --------
