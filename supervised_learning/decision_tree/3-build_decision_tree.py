@@ -1,150 +1,209 @@
 #!/usr/bin/env python3
 
+"""
+This is the 1-build_decision_tree module.
+"""
+
+import numpy as np
+
+
 class Node:
     """
-    Représente un nœud interne dans un arbre de décision.
+    Represents a node in a decision tree.
 
-    Attributs :
-    ----------
-    - feature : int
-        L'indice de la caractéristique utilisée pour diviser.
-    - threshold : float
-        Le seuil utilisé pour diviser les données.
-    - left_child : Node ou Leaf
-        Le sous-arbre gauche ou feuille associé à ce nœud.
-    - right_child : Node ou Leaf
-        Le sous-arbre droit ou feuille associé à ce nœud.
-    - is_root : bool
-        Indique si ce nœud est la racine de l'arbre.
-    - depth : int
-        La profondeur du nœud dans l'arbre.
-    - is_leaf : bool
-        Toujours `False` pour un nœud interne (contrairement à une feuille).
+    Attributes:
+        feature (int): The index of the feature used to split at this node.
+        threshold (float): The threshold value used to split at this node.
+        left_child (Node): The left child node.
+        right_child (Node): The right child node.
+        is_leaf (bool): Indicates whether this node is a leaf node.
+        is_root (bool): Indicates whether this node is the root node.
+        sub_population (None or ndarray): The subset of the population that
+        reaches this node.
+        depth (int): The depth of this node in the decision tree.
     """
 
     def __init__(self, feature=None, threshold=None, left_child=None,
                  right_child=None, is_root=False, depth=0):
-        """
-        Initialise un nœud interne.
-
-        Arguments :
-        ----------
-        - feature : int, optionnel
-            L'indice de la caractéristique utilisée pour diviser.
-        - threshold : float, optionnel
-            Le seuil utilisé pour diviser les données.
-        - left_child : Node ou Leaf, optionnel
-            Le sous-arbre gauche ou feuille associé à ce nœud.
-        - right_child : Node ou Leaf, optionnel
-            Le sous-arbre droit ou feuille associé à ce nœud.
-        - is_root : bool, optionnel
-            Indique si ce nœud est la racine de l'arbre. Par défaut, `False`.
-        - depth : int, optionnel
-            La profondeur du nœud dans l'arbre. Par défaut, `0`.
-        """
         self.feature = feature
         self.threshold = threshold
         self.left_child = left_child
         self.right_child = right_child
+        self.is_leaf = False
         self.is_root = is_root
+        self.sub_population = None
         self.depth = depth
-        self.is_leaf = False  # Toujours False pour un nœud interne
+
+    def max_depth_below(self):
+        """
+        Recursively calculates the maximum depth of the subtree below
+        this node.
+
+        Returns:
+            int: The maximum depth below this node.
+        """
+        if self.is_leaf:
+            return self.depth
+
+        return max(self.left_child.max_depth_below(),
+                   self.right_child.max_depth_below())
+
+    def count_nodes_below(self, only_leaves=False):
+        """
+        Returns the number of nodes under this node.
+        If only_leaves is True, only counts leaf nodes.
+        """
+        if only_leaves and self.is_leaf:
+            return 1
+
+        if not self.is_leaf:
+            # NOTE Counting the current node only if only_leaves == False
+            return self.left_child.count_nodes_below(only_leaves=only_leaves)\
+                + self.right_child.count_nodes_below(only_leaves=only_leaves)\
+                + (not only_leaves)
+
+    def __str__(self):
+        """
+        Prints string representation of the node and its children.
+        """
+
+        if self.is_root:
+            s = "root"
+        else:
+            s = "-> node"
+
+        return f"{s} [feature={self.feature}, threshold={self.threshold}]\n"\
+            + self.left_child_add_prefix(str(self.left_child))\
+            + self.right_child_add_prefix(str(self.right_child))
+
+    def left_child_add_prefix(self, text):
+        """
+        Adds the string representation of the left child to the given text
+        """
+        lines = text.split("\n")
+        new_text = "    +--" + lines[0] + "\n"
+        for x in lines[1:]:
+            new_text += ("    |  " + x) + "\n"
+        return (new_text)
+
+    def right_child_add_prefix(self, text):
+        """
+        Adds the string representation of the right child to the given text
+        """
+        lines = text.split("\n")
+        new_text = "    +--" + lines[0] + "\n"
+        for x in lines[1:]:
+            new_text += ("       " + x) + "\n"
+        # NOTE Had to strip the extra newline after right node
+        # There may be better alternatives
+        return (new_text.rstrip())
 
     def get_leaves_below(self):
         """
-        Récupère toutes les feuilles sous ce nœud.
-
-        Retourne :
-        --------
-        - list : Une liste contenant toutes les feuilles situées sous ce nœud.
+        Returns the list of all leaves below this one.
         """
-        leaves = []
-        # Vérifie si un enfant gauche existe, puis explore récursivement
-        if self.left_child:
-            leaves.extend(self.left_child.get_leaves_below())
-        # Vérifie si un enfant droit existe, puis explore récursivement
-        if self.right_child:
-            leaves.extend(self.right_child.get_leaves_below())
-        return leaves
+        return self.left_child.get_leaves_below()\
+            + self.right_child.get_leaves_below()
 
 
-class Leaf:
+class Leaf(Node):
     """
-    Représente une feuille dans un arbre de décision.
+    Represents a leaf node in a decision tree.
 
-    Attributs :
-    ----------
-    - value : int ou float
-        La valeur assignée à la feuille.
-    - depth : int
-        La profondeur de la feuille dans l'arbre.
-    - is_leaf : bool
-        Toujours `True` pour une feuille.
+    Attributes:
+        value (any): The value associated with the leaf node.
+        is_leaf (bool): Indicates whether the node is a leaf node.
+        depth (int): The depth of the leaf node in the decision tree.
     """
 
-    def __init__(self, value, depth=0):
-        """
-        Initialise une feuille.
-
-        Arguments :
-        ----------
-        - value : int ou float
-            La valeur assignée à la feuille.
-        - depth : int, optionnel
-            La profondeur de la feuille dans l'arbre. Par défaut, `0`.
-        """
+    def __init__(self, value, depth=None):
+        super().__init__()
         self.value = value
+        self.is_leaf = True
         self.depth = depth
-        self.is_leaf = True  # Toujours True pour une feuille
+
+    def max_depth_below(self):
+        """
+        Returns the maximum depth below the leaf node.
+
+        Returns:
+            int: The maximum depth below the leaf node.
+        """
+        return self.depth
+
+    def count_nodes_below(self, only_leaves=False):
+        """
+        Overwrites the same method for the Node class.
+        Returns 1.
+        """
+        return 1
+
+    def __str__(self):
+        # NOTE had to add that typo empty space at the end
+        # checker repo with the mistake : malekmrabti213
+        return (f"-> leaf [value={self.value}] ")
 
     def get_leaves_below(self):
         """
-        Retourne cette feuille, car elle est elle-même une feuille.
-
-        Retourne :
-        --------
-        - list : Une liste contenant uniquement cette feuille.
+        Returns this leaf as a list element.
         """
         return [self]
 
-    def __repr__(self):
-        """
-        Fournit une représentation textuelle d'une feuille
 
-        Exemple :
-        --------
-        -> leaf [value=5]
-        """
-        return f"-> leaf [value={self.value}]"
-
-
-class Decision_Tree:
+class Decision_Tree():
     """
-    Représente un arbre de décision avec un nœud racine.
+    A class representing a decision tree.
 
-    Attributs :
-    ----------
-    - root : Node
-        Le nœud racine de l'arbre de décision.
+    Attributes:
+        max_depth (int): The maximum depth of the decision tree.
+        min_pop (int): The minimum population required to split a node.
+        seed (int): The seed value for random number generation.
+        split_criterion (str): The criterion used for splitting nodes.
+        root (Node): The root node of the decision tree.
+        explanatory: The explanatory variable(s) used for prediction.
+        target: The target variable used for prediction.
+        predict: The prediction function used for making predictions.
+
+    Methods:
+        depth(): Returns the maximum depth of the decision tree.
     """
 
-    def __init__(self, root):
-        """
-        Initialise l'arbre de décision.
+    def __init__(self, max_depth=10, min_pop=1, seed=0,
+                 split_criterion="random", root=None):
+        self.rng = np.random.default_rng(seed)
+        if root:
+            self.root = root
+        else:
+            self.root = Node(is_root=True)
+        self.explanatory = None
+        self.target = None
+        self.max_depth = max_depth
+        self.min_pop = min_pop
+        self.split_criterion = split_criterion
+        self.predict = None
 
-        Arguments :
-        ----------
-        - root : Node
-            Le nœud racine de l'arbre de décision.
+    def depth(self):
         """
-        self.root = root
+        Returns the maximum depth of the decision tree.
+
+        Returns:
+            int: The maximum depth of the decision tree.
+        """
+        return self.root.max_depth_below()
+
+    def count_nodes(self, only_leaves=False):
+        """
+        Returns the number of nodes in the decision tree.
+        If only_leaves is True, only counts leaf nodes.
+        """
+        return self.root.count_nodes_below(only_leaves=only_leaves)
+
+    def __str__(self):
+        # NOTE cleaner to update this than use the "solution" I've seen
+        return f"{self.root.__str__()}\n"
 
     def get_leaves(self):
         """
-        Récupère toutes les feuilles de l'arbre de décision.
-
-        Retourne :
-        --------
-        - list : Une liste contenant toutes les feuilles de l'arbre.
+        Gets the list of leaves in the tree.
         """
         return self.root.get_leaves_below()
