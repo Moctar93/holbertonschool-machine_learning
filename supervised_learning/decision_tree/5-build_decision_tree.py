@@ -67,7 +67,7 @@ class Node:
 
     def update_bounds_below(self):
         """
-        dictionaries contain the bounds for each feature.
+        Update the lower and upper bounds for each node.
         """
         if self.is_root:
             self.lower = {0: -np.inf}
@@ -79,8 +79,8 @@ class Node:
 
             if self.feature in self.left_child.lower:
                 self.left_child.lower[self.feature] = max(
-                        self.threshold, self.left_child.lower[self.feature]
-                        )
+                    self.threshold, self.left_child.lower[self.feature]
+                )
             else:
                 self.left_child.lower[self.feature] = self.threshold
 
@@ -92,12 +92,32 @@ class Node:
 
             if self.feature in self.right_child.upper:
                 self.right_child.upper[self.feature] = min(
-                        self.threshold, self.right_child.upper[self.feature]
-                        )
+                    self.threshold, self.right_child.upper[self.feature]
+                )
             else:
                 self.right_child.upper[self.feature] = self.threshold
 
             self.right_child.update_bounds_below()
+
+    def update_indicator(self):
+        """
+        Update the indicator function based on the lower and upper bounds.
+        """
+        def is_large_enough(x):
+            conditions = [
+                x[:, key] > self.lower[key] for key in self.lower
+            ]
+            return np.all(np.array(conditions), axis=0)
+
+        def is_small_enough(x):
+            conditions = [
+                x[:, key] <= self.upper[key] for key in self.upper
+            ]
+            return np.all(np.array(conditions), axis=0)
+
+        self.indicator = lambda x: np.logical_and(
+            is_large_enough(x), is_small_enough(x)
+        )
 
     def __str__(self):
         """
@@ -111,29 +131,10 @@ class Node:
             node_representation += f"    +---> {left_str}"
 
         if self.right_child:
-            right_str = self.right_child.__str__().replace("\n", "\n       ")
+            right_str = self.right_child.__str__().replace("\n", "\n    |  ")
             node_representation += f"\n    +---> {right_str}"
 
         return node_representation
-
-def update_indicator(self):
-        """
-        Update the indicator function based on the lower and upper bounds.
-        """
-        def is_large_enough(x):
-            return np.all(
-                np.array([np.greater(x[:, key], self.lower[key])
-                          for key in self.lower]), axis=0
-            )
-
-        def is_small_enough(x):
-            return np.all(
-                np.array([np.less_equal(x[:, key], self.upper[key])
-                          for key in self.upper]), axis=0
-            )
-
-        self.indicator = lambda x: np.all(
-            np.array([is_large_enough(x), is_small_enough(x)]), axis=0)
 
 
 class Leaf(Node):
@@ -169,18 +170,15 @@ class Leaf(Node):
 
     def update_bounds_below(self):
         """
-        update the bounds for the node and its children.
+        Update the bounds for the node and its children.
         """
         pass
-
-    def __str__(self):
-        return (f"-> leaf [value={self.value}]")
 
     def update_indicator(self):
         """
         Updates the indicator function for this leaf node.
         """
-        self.indicator = lambda x: np.ones(x.shape[0], dtype=bool) 
+        self.indicator = lambda x: np.ones(x.shape[0], dtype=bool)
 
 
 class Decision_Tree():
@@ -202,11 +200,10 @@ class Decision_Tree():
         self.max_depth = max_depth
         self.min_pop = min_pop
         self.split_criterion = split_criterion
-        self.predict = None
 
     def depth(self):
         """
-         Returns the maximum depth of the entire tree.
+        Returns the maximum depth of the entire tree.
         """
         return self.root.max_depth_below()
 
@@ -230,3 +227,59 @@ class Decision_Tree():
 
     def __str__(self):
         return f"{self.root.__str__()}\n"
+
+# Main script to test the updated code
+
+if __name__ == '__main__':
+    Node = __import__('5-build_decision_tree').Node
+    Leaf = __import__('5-build_decision_tree').Leaf
+    Decision_Tree = __import__('5-build_decision_tree').Decision_Tree
+    import numpy as np
+
+    def example_0():
+        leaf0 = Leaf(0, depth=1)
+        leaf1 = Leaf(0, depth=2)
+        leaf2 = Leaf(1, depth=2)
+        internal_node = Node(feature=1, threshold=30000, left_child=leaf1,
+                              right_child=leaf2, depth=1)
+        root = Node(feature=0, threshold=0.5, left_child=leaf0,
+                    right_child=internal_node, depth=0, is_root=True)
+        return Decision_Tree(root=root)
+
+    def example_1(depth):
+        level = [Leaf(i, depth=depth) for i in range(2 ** depth)]
+        level.reverse()
+
+        def get_v(node):
+            if node.is_leaf:
+                return node.value
+            else:
+                return node.threshold
+
+        for d in range(depth):
+            level = [Node(feature=0,
+                          threshold=(get_v(level[2 * i]) + get_v(level[2 * i + 1])) / 2,
+                          left_child=level[2 * i], right_child=level[2 * i + 1],
+                          depth=depth - d - 1) for i in range(2 ** (depth - d - 1))]
+        root = level[0]
+        root.is_root = True
+        return Decision_Tree(root=root)
+
+    def print_indicator_values_on_leaves(T, A):
+        leaves = T.get_leaves()
+        T.update_bounds()
+        for leaf in leaves:
+            leaf.update_indicator()
+        print("Values of indicators of leaves:\n", np.array([leaf.indicator(A) for leaf in leaves]))
+
+    T = example_0()
+    A = np.array([[1, 22000], [1, 44000], [0, 22000], [0, 44000]])
+    print("\n\nFor example_0()")
+    print("A=\n", A)
+    print_indicator_values_on_leaves(T, A)
+
+    T = example_1(4)
+    A = np.array([[11.65], [6.917]])
+    print("\n\nFor example_1(4)")
+    print("A=\n", A)
+    print_indicator_values_on_leaves(T, A)
