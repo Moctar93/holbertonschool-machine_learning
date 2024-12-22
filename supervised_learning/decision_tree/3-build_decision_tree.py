@@ -54,6 +54,7 @@ class Leaf:
     def __repr__(self):
         return f"-> leaf [value={self.value}]"
 
+
 class Decision_Tree:
     def __init__(self, root):
         self.root = root
