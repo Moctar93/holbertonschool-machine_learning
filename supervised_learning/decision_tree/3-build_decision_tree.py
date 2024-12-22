@@ -40,8 +40,9 @@ class Node:
             leaves.extend(self.right_child.get_leaves_below())
         return leaves
 
-"""Point d'entree de l'arbre de decison"""
+
 class Leaf:
+    """Point d'entree de l'arbre de decision"""
     def __init__(self, value, depth=0):
         self.value = value
         self.depth = depth
@@ -54,8 +55,8 @@ class Leaf:
     def __repr__(self):
         return f"-> leaf [value={self.value}]"
 
-"""un arbre de décision avec un nœud racine (root)"""
 class Decision_Tree:
+    """un arbre de décision avec un nœud racine (root)"""
     def __init__(self, root):
         self.root = root
 
