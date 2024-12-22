@@ -42,7 +42,6 @@ class Node:
 
 
 class Leaf:
-    """Point d'entree de l'arbre de decision"""
     def __init__(self, value, depth=0):
         self.value = value
         self.depth = depth
@@ -56,7 +55,6 @@ class Leaf:
         return f"-> leaf [value={self.value}]"
 
 class Decision_Tree:
-    """un arbre de décision avec un nœud racine (root)"""
     def __init__(self, root):
         self.root = root
 
