@@ -3,18 +3,17 @@
 Module to create a layer
 """
 import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()  # Désactive les fonctionnalités par défaut de TensorFlow 2.x
 
 def create_layer(prev, n, activation):
     """
-    Creates a layer using TensorFlow 2.x
-    :param prev: tensor containing the output of the previous layer
-    :param n: number of nodes in the layer
-    :param activation: activation function to use
-    :return: the output of the new layer
+    a function that create layers
+    :param prev: the tensor output of the previous layer
+    :param n: the number of nodes in the layer to create
+    :param activation: is the activation function that the layer should use
+    :return: the tensor output of the layer
     """
-    # Initialisation avec VarianceScaling (remplace tf.contrib.layers.variance_scaling_initializer)
-    init = tf.keras.initializers.VarianceScaling(scale=2.0, mode='fan_avg', distribution='uniform')
-    
-    # Création d'une couche Dense
-    layer = tf.keras.layers.Dense(units=n, activation=activation, kernel_initializer=init, name="layer")
+    init = tf.contrib.layers.variance_scaling_initializer(mode="FAN_AVG")
+    layer = tf.layers.Dense(n, activation=activation, kernel_initializer=init,
+                            name="layer")
     return layer(prev)
