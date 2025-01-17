@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Module to create a layer
+Create a tensor layer.
 """
+
 import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()  # Désactive les fonctionnalités par défaut de TensorFlow 2.x
+
 
 def create_layer(prev, n, activation):
     """
-    a function that create layers
-    :param prev: the tensor output of the previous layer
-    :param n: the number of nodes in the layer to create
-    :param activation: is the activation function that the layer should use
-    :return: the tensor output of the layer
+    Create a layer for a neural network.
     """
-    init = tf.contrib.layers.variance_scaling_initializer(mode="FAN_AVG")
-    layer = tf.layers.Dense(n, activation=activation, kernel_initializer=init,
-                            name="layer")
+    init_weights = tf.keras.initializers.VarianceScaling(mode='fan_avg')
+
+    layer = tf.keras.layers.Dense(units=n, activation=activation,
+                                  kernel_initializer=init_weights,
+                                  name="layer")
+
     return layer(prev)
