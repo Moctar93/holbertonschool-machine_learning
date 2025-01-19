@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
-import tensorflow.compat.v1 as tf
-tf.disable_eager_execution()
+import tensorflow as tf
 
-create_placeholders = __import__('0-create_placeholders').create_placeholders
-forward_prop = __import__('2-forward_prop').forward_prop
+build_model = __import__('1-input').build_model
+optimize_model = __import__('2-optimize').optimize_model
 
-x, y = create_placeholders(784, 10)
-y_pred = forward_prop(x, [256, 256, 10], [tf.nn.tanh, tf.nn.tanh, None])
-print(y_pred)
+if __name__ == '__main__':
+    model = build_model(784, [256, 256, 10], ['tanh', 'tanh', 'softmax'], 0.001, 0.95)
+    optimize_model(model, 0.01, 0.99, 0.9)
+    print(model.loss)
+    opt = model.optimizer
+    print(opt.__class__)
+    print((opt.lr.numpy(), opt.beta_1, opt.beta_2))
