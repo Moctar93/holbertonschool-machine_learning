@@ -2,6 +2,16 @@
 
 import numpy as np
 
+"""
+Module pour la création d'une matrice de confusion.
+
+Ce module contient une fonction pour générer une matrice de confusion
+à partir des labels réels et des prédictions en one-hot encoding.
+La matrice de confusion indique le nombre de fois où chaque classe réelle
+a été correctement ou incorrectement prédite par le modèle.
+
+"""
+
 
 def create_confusion_matrix(labels, logits):
     """
