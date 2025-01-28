@@ -1,30 +1,25 @@
-#!/usr/bin/env python3
-
 import numpy as np
 
 def create_confusion_matrix(labels, logits):
     """
-    Crée une matrice de confusion.
+    Crée une matrice de confusion à partir des labels réels et des logits prédits.
 
-    Args:
-        labels (numpy.ndarray): Un tableau one-hot de forme (m, classes) contenant les étiquettes correctes.
-        logits (numpy.ndarray): Un tableau one-hot de forme (m, classes) contenant les prédictions.
+    Parameters:
+    - labels : numpy.ndarray de forme (m, classes), les labels réels en one-hot encoding
+    - logits : numpy.ndarray de forme (m, classes), les prédictions en one-hot encoding
 
     Returns:
-        numpy.ndarray: Une matrice de confusion de forme (classes, classes).
+    - numpy.ndarray de forme (classes, classes), la matrice de confusion
     """
-    # Convertir les one-hot vectors en indices de classe
-    true_labels = np.argmax(labels, axis=1)
-    predicted_labels = np.argmax(logits, axis=1)
+    # Convertir les vecteurs one-hot en indices de classes
+    true_classes = np.argmax(labels, axis=1)
+    predicted_classes = np.argmax(logits, axis=1)
 
-    # Nombre de classes
-    num_classes = labels.shape[1]
-
-    # Initialiser la matrice de confusion
-    confusion_matrix = np.zeros((num_classes, num_classes), dtype=int)
+    # Créer la matrice de confusion avec le type float
+    confusion_matrix = np.zeros((labels.shape[1], labels.shape[1]), dtype=float)
 
     # Remplir la matrice de confusion
-    for true, predicted in zip(true_labels, predicted_labels):
-        confusion_matrix[true, predicted] += 1
+    for true, pred in zip(true_classes, predicted_classes):
+        confusion_matrix[true, pred] += 1.0  # Assurez-vous que les valeurs sont flottantes
 
     return confusion_matrix
