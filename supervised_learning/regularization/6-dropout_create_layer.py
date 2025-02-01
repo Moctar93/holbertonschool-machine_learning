@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 """
-Creates a layer of a neural network using dropout
+Creating a dense layer with dropout
 """
 import tensorflow as tf
 
 
-def dropout_create_layer(prev, n, activation, keep_prob):
+def dropout_create_layer(prev, n, activation, keep_prob, training=True):
     """
-    a function that creates a layer of a NN using dropout
-    :param prev: tensor containing the output of the previous layer
-    :param n: the number of nodes the new layer should contain
-    :param activation: the activation function that should be used on the layer
-    :param keep_prob: the probability that a node will be kept
-    :return: the output of the new layer
+    Creating a dense layer with dropout
     """
-    dropout = tf.layers.Dropout(keep_prob)
-    init = tf.contrib.layers.variance_scaling_initializer(mode="FAN_AVG")
-    layer = tf.layers.Dense(n, activation=activation, kernel_initializer=init,
-                            kernel_regularizer=dropout)
-    return layer(prev)
+    init_weights = tf.keras.initializers.VarianceScaling(
+        scale=2.0, mode="fan_avg")
+
+    layer = tf.keras.layers.Dense(
+        units=n,
+        activation=activation,
+        kernel_initializer=init_weights
+    )
+
+    output = layer(prev)
+
+    if training:
+        dropout = tf.keras.layers.Dropout(rate=(1 - keep_prob))
+        output = dropout(output, training=training)
+
+    return output
