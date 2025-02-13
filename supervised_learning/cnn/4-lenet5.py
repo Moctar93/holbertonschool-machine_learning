@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()  # Disable TensorFlow 2.x behavior to use 1.x
 
 def lenet5(x, y):
+    # Initialize variables and activation function
     init = tf.contrib.layers.variance_scaling_initializer()
     activation = tf.nn.relu
 
@@ -43,25 +45,26 @@ def lenet5(x, y):
 
 
 # Example code to run the model and print the predictions
-with tf.Session() as sess:
-    # Example input data (replace with actual data)
-    x_input = tf.placeholder(tf.float32, shape=(None, 28, 28, 1))  # Example shape
-    y_input = tf.placeholder(tf.float32, shape=(None, 10))          # Example shape
+if __name__ == "__main__":
+    with tf.Session() as sess:
+        # Example input data (replace with actual data)
+        x_input = tf.placeholder(tf.float32, shape=(None, 28, 28, 1))  # Example shape
+        y_input = tf.placeholder(tf.float32, shape=(None, 10))          # Example shape
 
-    # Build model
-    y_pred, train_op, loss_op, accuracy_op = lenet5(x_input, y_input)
+        # Build model
+        y_pred, train_op, loss_op, accuracy_op = lenet5(x_input, y_input)
 
-    # Initialize variables
-    sess.run(tf.global_variables_initializer())
+        # Initialize variables
+        sess.run(tf.global_variables_initializer())
 
-    # Simulate input data (use actual dataset here)
-    x_data = [[[[0]]]]  # Dummy data, replace with actual input
-    y_data = [[0] * 10]  # Dummy labels, replace with actual labels
+        # Simulate input data (use actual dataset here)
+        x_data = [[[[0]]]]  # Dummy data, replace with actual input
+        y_data = [[0] * 10]  # Dummy labels, replace with actual labels
 
-    # Run the model (no actual training here)
-    feed_dict = {x_input: x_data, y_input: y_data}
-    predictions = sess.run(y_pred, feed_dict=feed_dict)
+        # Run the model (no actual training here)
+        feed_dict = {x_input: x_data, y_input: y_data}
+        predictions = sess.run(y_pred, feed_dict=feed_dict)
 
-    # Print predictions
-    print(predictions)
+        # Print predictions
+        print(predictions)
 
