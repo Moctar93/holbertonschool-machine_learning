@@ -1,50 +1,57 @@
 #!/usr/bin/env python3
-""" inception"""
+"""
+   Module contains
+   inception_block(A_prev, filters):
+"""
+
+
 import tensorflow.keras as K
-inception_block = __import__('0-inception_block').inception_block
 
 
-def inception_network():
-    """ inception_network"""
-    input = K.Input(shape=(224, 224, 3))
-    conv1 = K.layers.Conv2D(filters=64,
-                            strides=2,
-                            kernel_size=(7, 7),
-                            padding='same',
-                            activation='relu')(input)
-    pool1 = K.layers.MaxPool2D(pool_size=(3, 3),
-                               strides=2,
-                               padding='same')(conv1)
-    conv3r = K.layers.Conv2D(filters=64,
-                             kernel_size=(1, 1),
-                             padding="valid",
-                             activation='relu')(pool1)
-    conv3 = K.layers.Conv2D(filters=192,
-                            kernel_size=(3, 3),
-                            padding='same',
-                            activation='relu')(conv3r)
-    pool2 = K.layers.MaxPool2D(pool_size=(3, 3),
-                               strides=2,
-                               padding='same')(conv3)
-    cat1 = inception_block(pool2, [64, 96, 128, 16, 32, 32])
-    cat2 = inception_block(cat1, [128, 128, 192, 32, 96, 64])
-    pool3 = K.layers.MaxPool2D(pool_size=(3, 3),
-                               strides=2,
-                               padding='same')(cat2)
-    cat3 = inception_block(pool3, [192, 96, 208, 16, 48, 64])
-    cat4 = inception_block(cat3, [160, 112, 224, 24, 64, 64])
-    cat5 = inception_block(cat4, [128, 128, 256, 24, 64, 64])
-    cat6 = inception_block(cat5, [112, 144, 288, 32, 64, 64])
-    cat7 = inception_block(cat6, [256, 160, 320, 32, 128, 128])
-    pool4 = K.layers.MaxPool2D(pool_size=(3, 3),
-                               strides=2,
-                               padding='same')(cat7)
-    cat8 = inception_block(pool4, [256, 160, 320, 32, 128, 128])
-    cat9 = inception_block(cat8, [384, 192, 384, 48, 128, 128])
-    avpool = K.layers.AveragePooling2D(pool_size=(7, 7),
-                                       strides=1,
-                                       padding='valid')(cat9)
-    drop = K.layers.Dropout(.3)(avpool)
-    dense = K.layers.Dense(1000, activation='softmax')(drop)
-    model = K.models.Model(inputs=input, outputs=dense)
-    return model
+def inception_block(A_prev, filters):
+    """
+    Builds an inception block as described in
+      Going Deeper with Convolutions (2014)
+
+    Args:
+      A_prev: output from previous layer
+      filter: tuple containing filter dims for each layer
+
+    Return:
+      Concatenated output of inception block
+    """
+    F1, F3R, F3, F5R, F5, FPP = filters
+    init = K.initializers.he_normal()
+
+    # 1D
+    conv1D = K.layers.Conv2D(
+        F1, (1, 1), padding='same', activation='relu', kernel_initializer=init
+    )(A_prev)
+
+    # 1D -> 3x3
+    conv3_1D = K.layers.Conv2D(
+        F3R, (1, 1), padding='same', activation='relu', kernel_initializer=init
+    )(A_prev)
+    conv3 = K.layers.Conv2D(
+        F3, (3, 3), padding='same', activation='relu', kernel_initializer=init
+    )(conv3_1D)
+
+    # 1D -> 5x5
+    conv5_1D = K.layers.Conv2D(
+        F5R, (1, 1), padding='same', activation='relu', kernel_initializer=init
+    )(A_prev)
+    conv5 = K.layers.Conv2D(
+        F5, (5, 5), padding='same', activation='relu', kernel_initializer=init
+    )(conv5_1D)
+
+    # 3x3 pool -> 1D
+    pool = K.layers.MaxPooling2D(
+        (2, 2), strides=(1, 1), padding='same'
+    )(A_prev)
+    convPool = K.layers.Conv2D(
+        FPP, (1, 1), padding='same', activation='relu', kernel_initializer=init
+    )(pool)
+
+    out = K.layers.concatenate([conv1D, conv3, conv5, convPool])
+
+    return out
