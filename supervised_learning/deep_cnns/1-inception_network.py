@@ -25,7 +25,6 @@ def inception_network():
     x = K.layers.MaxPool2D(pool_size=3,
                            strides=2,
                            padding='same')(x)
-    x = K.layers.BatchNormalization()(x)
     x = K.layers.Conv2D(filters=64,
                         kernel_size=1,
                         strides=1,
@@ -36,7 +35,6 @@ def inception_network():
                         strides=1,
                         padding='same',
                         activation='relu')(x)
-    x = K.layers.BatchNormalization()(x)
     x = K.layers.MaxPool2D(pool_size=3,
                            strides=2,
                            padding='same')(x)
