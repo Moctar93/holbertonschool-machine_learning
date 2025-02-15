@@ -7,11 +7,13 @@ from tensorflow import keras as K
 
 def inception_block(A_prev, filters):
     """
-    Function that builds an inception block as described in Going Deeper with Convolutions (2014).
+    Function that builds an inception block as described in Going Deeper
+    with Convolutions (2014).
 
     Arguments:
     A_prev -- input tensor from the previous layer
-    filters -- tuple or list of 6 integers, specifying the number of filters in each convolution:
+    filters -- tuple or list of 6 integers, specifying the number
+    of filters in each convolution:
                [F1, F3R, F3, F5R, F5, FPP]
 
     Returns:
