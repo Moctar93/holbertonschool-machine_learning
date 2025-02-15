@@ -7,18 +7,22 @@ from tensorflow import keras as K
 
 def lenet5(X):
     """
-    Function that builds a modified version of the LeNet-5 architecture using Keras.
+    Function that builds a modified version of the LeNet-5 architecture
+    using Keras.
 
     Arguments:
-    X -- K.Input of shape (m, 28, 28, 1) containing the input images for the network
+    X -- K.Input of shape (m, 28, 28, 1) containing the input images for
+    the network
 
     Returns:
-    model -- a K.Model compiled to use Adam optimization and accuracy metrics
+    model -- a K.Model compiled to use Adam optimization and accuracy
+    metrics
     """
     # Initializer
     initializer = K.initializers.HeNormal(seed=0)
 
-    # Layer 1: Convolutional layer with 6 kernels of shape 5x5 with same padding
+    # Layer 1: Convolutional layer with 6 kernels of shape
+    # 5x5 withsame padding
     conv1 = K.layers.Conv2D(filters=6,
                             kernel_size=5,
                             padding='same',
@@ -29,7 +33,8 @@ def lenet5(X):
     pool1 = K.layers.MaxPooling2D(pool_size=2,
                                   strides=2)(conv1)
 
-    # Layer 3: Convolutional layer with 16 kernels of shape 5x5 with valid padding
+    # Layer 3: Convolutional layer with 16 kernels of shape
+    # 5x5 with valid padding
     conv2 = K.layers.Conv2D(filters=16,
                             kernel_size=5,
                             padding='valid',
