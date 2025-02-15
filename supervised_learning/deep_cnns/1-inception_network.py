@@ -3,6 +3,7 @@
 Inception Network
 """
 from tensorflow import keras as K
+inception_block = __import__('0-inception_block').inception_block
 
 
 def inception_network():
@@ -12,9 +13,6 @@ def inception_network():
     Returns:
     model -- the Keras model
     """
-    # Import the inception_block function
-    inception_block = __import__('0-inception_block').inception_block
-
     # Input layer
     inputs = K.Input(shape=(224, 224, 3))
 
