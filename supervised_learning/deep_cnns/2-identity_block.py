@@ -1,50 +1,43 @@
 #!/usr/bin/env python3
 """
-Implementation of a residual block and a model using it.
+Building an identity block
 """
 
 from tensorflow import keras as K
 
-def residual_block(x, filters):
+
+def identity_block(A_prev, filters):
     """
-    A residual block with two convolutional layers and a skip connection.
+    Building an identity block
     """
-    # Shortcut
-    shortcut = x
+    F11, F3, F12 = filters
 
-    # First convolution
-    x = K.layers.Conv2D(filters, (3, 3), padding='same')(x)
-    x = K.layers.BatchNormalization()(x)
-    x = K.layers.ReLU()(x)
+    init = K.initializers.HeNormal(seed=0)
 
-    # Second convolution
-    x = K.layers.Conv2D(filters, (3, 3), padding='same')(x)
-    x = K.layers.BatchNormalization()(x)
+    conv1 = K.layers.Conv2D(filters=F11,
+                            kernel_size=(1, 1),
+                            strides=(1, 1),
+                            padding="same",
+                            kernel_initializer=init)(A_prev)
 
-    # Add shortcut
-    x = K.layers.Add()([x, shortcut])
-    x = K.layers.ReLU()(x)
+    norm1 = K.layers.BatchNormalization(axis=-1)(conv1)
+    relu1 = K.layers.Activation(activation="relu")(norm1)
 
-    return x
+    conv2 = K.layers.Conv2D(filters=F3,
+                            kernel_size=(3, 3),
+                            strides=(1, 1),
+                            padding="same",
+                            kernel_initializer=init)(relu1)
+    norm2 = K.layers.BatchNormalization(axis=-1)(conv2)
+    relu2 = K.layers.Activation(activation="relu")(norm2)
 
-def build_model(input_shape=(56, 56, 256)):
-    """
-    Builds a model with residual blocks.
-    """
-    inputs = K.Input(shape=input_shape)
+    conv3 = K.layers.Conv2D(filters=F12,
+                            kernel_size=(1, 1),
+                            strides=(1, 1),
+                            padding="same",
+                            kernel_initializer=init)(relu2)
+    norm3 = K.layers.BatchNormalization(axis=-1)(conv3)
 
-    # Initial convolution
-    x = K.layers.Conv2D(64, (7, 7), padding='same')(inputs)
-    x = K.layers.BatchNormalization()(x)
-    x = K.layers.ReLU()(x)
+    merged = K.layers.Add()([norm3, A_prev])
 
-    # Residual blocks
-    x = residual_block(x, 64)
-    x = residual_block(x, 64)
-
-    # Final layers
-    x = K.layers.GlobalAveragePooling2D()(x)
-    outputs = K.layers.Dense(10, activation='softmax')(x)
-
-    model = K.models.Model(inputs, outputs)
-    return model
+    return K.layers.Activation(activation="relu")(merged)
