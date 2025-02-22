@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import tensorflow as tf
 from tensorflow.keras.applications import MobileNet
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense
