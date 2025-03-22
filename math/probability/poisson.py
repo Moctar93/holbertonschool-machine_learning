@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Poisson:
     """
     Classe représentant une distribution de Poisson.
