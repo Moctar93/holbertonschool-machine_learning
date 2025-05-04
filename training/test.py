@@ -11,3 +11,6 @@ print(C)
 
 D = A.dot(B)
 print(D)
+
+X = 2
+print(X)
