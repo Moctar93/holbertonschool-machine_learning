@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import os
 
 def load_and_merge_data():
     """Charge les fichiers et fusionne les données Coinbase et Bitstamp sur la colonne Timestamp."""
@@ -16,17 +15,17 @@ def load_and_merge_data():
 def preprocess(df):
     """
     Nettoyage et normalisation :
-    - On garde uniquement la moyenne des prix pondérés des deux sources.
-    - On trie par Timestamp pour garantir l'ordre temporel.
-    - On applique MinMaxScaler pour que les valeurs soient entre 0 et 1.
+    - Moyenne pondérée entre les deux exchanges
+    - Tri temporel
+    - Normalisation des valeurs avec MinMaxScaler
     """
     df['vwap'] = df[['Weighted_Price_cb', 'Weighted_Price_bs']].mean(axis=1)
-    df = df[['Timestamp', 'vwap']]
+    df = df[['Timestamp', 'vwap']].copy()
 
     df.dropna(inplace=True)
-    df.sort_values('Timestamp', inplace=True)
+    df = df.sort_values('Timestamp')
 
-    # Échelle entre 0 et 1
+    # Normalisation entre 0 et 1
     scaler = MinMaxScaler()
     df['vwap'] = scaler.fit_transform(df[['vwap']])
 
