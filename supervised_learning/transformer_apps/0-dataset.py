@@ -61,5 +61,3 @@ class Dataset:
         )
 
         return tokenizer_pt, tokenizer_en
-```
-
