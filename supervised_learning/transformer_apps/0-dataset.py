@@ -1,4 +1,3 @@
-```python
 #!/usr/bin/env python3
 """
 Create the class Dataset that loads and preps a dataset for machine translation
