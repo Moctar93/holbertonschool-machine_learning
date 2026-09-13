@@ -3,8 +3,6 @@
 Module for computing descriptive statistics.
 """
 
-import pandas as pd
-
 
 def analyze(df):
     """
