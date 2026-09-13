@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
-
 import pandas as pd
-from_file = __import__('2-from_file').from_file
 
-df = from_file('coinbaseUSD_1-min_data_2014-12-01_to_2019-01-09.csv', ',')
 
-df = df.rename(columns={"Timestamp": "Datetime"})
-df['Datetime'] = pd.to_datetime(df['Datetime'], unit='s')
-df = df[['Datetime', 'Close']]
+def rename(df):
+    """
+    Renames the Timestamp column to Datetime,
+    converts timestamps to datetime values,
+    and keeps only Datetime and Close columns.
 
-print(df.tail())
+    Args:
+        df: pandas DataFrame
+
+    Returns:
+        The modified DataFrame
+    """
+    df = df.rename(columns={"Timestamp": "Datetime"})
+    df["Datetime"] = pd.to_datetime(df["Datetime"], unit="s")
+    df = df[["Datetime", "Close"]]
+
+    return df
