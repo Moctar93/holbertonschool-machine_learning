@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
-""" flip_image"""
+"""
+Module for flipping an image horizontally.
+"""
+
 import tensorflow as tf
 
 
 def flip_image(image):
-    """flip image"""
-    flip = tf.image.flip_left_right(image)
-    return flip
+    """
+    Flips an image horizontally.
+
+    Args:
+        image: A 3D tf.Tensor containing an image.
+
+    Returns:
+        The horizontally flipped image.
+    """
+    return tf.image.flip_left_right(image)
