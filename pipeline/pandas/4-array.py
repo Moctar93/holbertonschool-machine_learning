@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 
-import pandas as pd
-from_file = __import__('2-from_file').from_file
 
-df = from_file('coinbaseUSD_1-min_data_2014-12-01_to_2019-01-09.csv', ',')
+def array(df):
+    """
+    Selects the last 10 rows of High and Close
+    and converts them to a numpy.ndarray.
 
-A = df[['High', 'Close']].tail(10).to_numpy()
+    Args:
+        df: pandas DataFrame
 
-print(A)
+    Returns:
+        numpy.ndarray
+    """
+    return df[["High", "Close"]].tail(10).to_numpy()
