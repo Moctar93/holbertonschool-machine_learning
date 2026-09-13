@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-""" Get requests location from Github API"""
+"""Get the location of a GitHub user."""
+
 import sys
-import requests
 import time
+
+import requests
 
 
 if __name__ == '__main__':
-
     url = sys.argv[1]
     headers = {'Accept': 'application/vnd.github.v3+json'}
     response = requests.get(url, headers=headers)
+
     if response.status_code == 200:
         print(response.json()['location'])
-    if response.status_code == 404:
+    elif response.status_code == 404:
         print('Not found')
-    if response.status_code == 403:
-        limit = int(response.headers['X-Ratelimit-Reset'])
-        start = int(time.time())
-        elapsed = int((limit - start) / 60)
-        print('Reset in {} min'.format(int(elapsed)))
+    elif response.status_code == 403:
+        reset = int(response.headers['X-Ratelimit-Reset'])
+        now = int(time.time())
+        minutes = (reset - now) // 60
+        print('Reset in {} min'.format(minutes))
